@@ -27,6 +27,12 @@ def get_args():
                         type=str,
                         default='session')
 
+    parser.add_argument('--device',
+                        type=str,
+                        default='auto',
+                        choices=['auto', 'cpu', 'cuda'],
+                        help="Device to run on: 'cuda' to force GPU, 'cpu' to force CPU, 'auto' to use GPU if available")
+
     args = parser.parse_args()
 
     return args

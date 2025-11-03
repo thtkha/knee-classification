@@ -13,6 +13,19 @@ import os
 def train_model(model, train_loader, val_loader, fold=0):
     args = get_args()
 
+    # Device selection: allow user to force CPU or GPU or pick automatically
+    if args.device == 'auto':
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    else:
+        # user explicitly requested 'cpu' or 'cuda'
+        device = torch.device(args.device)
+        if device.type == 'cuda' and not torch.cuda.is_available():
+            raise RuntimeError("CUDA was requested via --device cuda but no CUDA-capable device is available. Use --device cpu or install CUDA/drivers.")
+
+    print(f"Using device: {device}")
+    # move model to the selected device
+    model = model.to(device)
+
     # define the loss function and optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
@@ -42,8 +55,9 @@ def train_model(model, train_loader, val_loader, fold=0):
         train_probs = []
 
         for batch in train_loader:
-            inputs = batch['img']
-            targets = batch['label']
+            # move data to the selected device
+            inputs = batch['img'].to(device)
+            targets = batch['label'].to(device)
 
             # reset the gradients
             optimizer.zero_grad()
@@ -127,8 +141,9 @@ def validate_model(model, val_loader, criterion):
 
     with torch.no_grad():
         for batch in val_loader:
-            inputs = batch['img']
-            targets = batch['label']
+            # move data to the same device as the model
+            inputs = batch['img'].to(next(model.parameters()).device)
+            targets = batch['label'].to(next(model.parameters()).device)
 
             outputs = model(inputs)
             loss = criterion(outputs, targets)

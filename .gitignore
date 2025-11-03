@@ -3,3 +3,5 @@ session/
 data/
 venv/
 
+__pycache__
+gpu_checker.py
