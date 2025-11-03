@@ -21,7 +21,8 @@ def get_args():
                         type=float,
                         default=1e-3)
 
-    parser.add_argument('-epochs', type=float, default=10)
+    parser.add_argument('-epochs', type=int, default=10,
+                        help='Number of training epochs (integer)')
 
     parser.add_argument('-out_dir',
                         type=str,
